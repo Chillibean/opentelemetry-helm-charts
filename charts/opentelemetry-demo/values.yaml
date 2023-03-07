@@ -95,30 +95,35 @@ components:
   #   resources: {}
   ## Container security context for setting user ID (UID), group ID (GID) and other security policies
   #   securityContext:
-  ## Ingresses rules to add for the to the component
-  # ingress:
-  ## Enable the creation of Ingress rules. Default is false
-  #   enabled: false
-  ## Annotations to add to the ingress rule
-  #   annotations: {}
-  ## Which Ingress class (controller) to use. Default is unspecified.
-  #   ingressClassName: nginx
-  ## Hosts definitions for the Ingress rule
-  #   hosts:
-  #     - host: demo.example.com
-  ## Each host can have multiple paths/routes
-  #       paths:
-  #         - path: /
-  #           pathType: Prefix
-  #           port: 8080
-  ## Optional TLS specifications for the Ingress rule
-  #   tls:
-  #     - secretName: demo-tls
-  #       hosts:
-  #         - demo.example.com
-  ## Additional ingresses - only created if ingress.enabled is true
-  ## Useful for when differently annotated ingress services are required
-  ## Each additional ingress needs key "name" set to something unique
+  # Ingresses rules to add for the to the component
+  ingress:
+  # Enable the creation of Ingress rules. Default is false
+    enabled: true
+  # Annotations to add to the ingress rule
+    annotations:
+      ingress.kubernetes.io/auth-signin: https://login.maicondev.chillipharm-dev.net/oauth2/start?rd=$scheme://$host$request_uri
+      ingress.kubernetes.io/auth-url: "https://login.maicondev.chillipharm-dev.net/oauth2/auth"
+      cert-manager.io/cluster-issuer: letsencrypt-production
+      kubernetes.io/ingress.class: nginx
+      kubernetes.io/tls-acme: "true"
+  # Which Ingress class (controller) to use. Default is unspecified.
+    ingressClassName: nginx
+  # Hosts definitions for the Ingress rule
+    hosts:
+      - host: otel-demo-collector.maicondev.chillipharm-dev.net
+  # Each host can have multiple paths/routes
+        paths:
+          - path: /
+            pathType: Prefix
+            port: 8080
+  # Optional TLS specifications for the Ingress rule
+    tls:
+      - secretName: demo-tls
+        hosts:
+          - otel-demo-collector.maicondev.chillipharm-dev.net
+  # # Additional ingresses - only created if ingress.enabled is true
+  # # Useful for when differently annotated ingress services are required
+  # # Each additional ingress needs key "name" set to something unique
   #   additionalIngresses: []
   #     - name: extra-demo-ingress
   #       ingressClassName: nginx
@@ -332,7 +337,7 @@ components:
       - name: FRONTEND_PORT
         value: "8080"
       - name: PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
-        value: http://localhost:4318/v1/traces             # This expects users to use `kubectl port-forward ...`
+        value: http://otel-demo-collector.maicondev.chillipharm-dev.net:4318/v1/traces     # This expects users to use `kubectl port-forward ...`
     resources:
       limits:
         memory: 200Mi
